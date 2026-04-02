@@ -1,0 +1,2 @@
+[console_scripts]
+nano-claw-code = nano_claw_code.cli:main

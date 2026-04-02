@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: nano-claw-code
+Version: 0.2.0
+Summary: Python coding agent converted from nano-claude-code (TypeScript), with Claude Code-compatible tools and stream-json protocol
+Requires-Python: >=3.10
+Requires-Dist: anthropic>=0.40.0
+Requires-Dist: openai>=1.40.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: prompt_toolkit>=3.0.0
+Provides-Extra: dev
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Requires-Dist: pytest>=8.0; extra == "dev"
+Provides-Extra: rich
+Requires-Dist: rich>=13.0.0; extra == "rich"

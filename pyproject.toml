@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nano-claw-code"
+version = "0.2.0"
+description = "Python coding agent converted from nano-claude-code (TypeScript), with Claude Code-compatible tools and stream-json protocol"
+requires-python = ">=3.10"
+dependencies = [
+  "anthropic>=0.40.0",
+  "openai>=1.40.0",
+  "httpx>=0.25.0",
+  "prompt_toolkit>=3.0.0",
+]
+
+[project.scripts]
+nano-claw-code = "nano_claw_code.cli:main"
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6.0", "pytest>=8.0"]
+rich = ["rich>=13.0.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nano_claw_code*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: calls real network or Anthropic API (set ANTHROPIC_API_KEY to run)",
+  "e2e: full CLI subprocess workflows (also needs API key)",
+]
