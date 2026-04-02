@@ -1156,20 +1156,20 @@ def _print_banner(provider: str, provider_label: str, model: str, perm_mode: str
 
     rows.append(("", ""))
     rows.append((
-        "      ▄██▄       nano claw code",
-        f"      {c2}▄{c1}██{c2}▄{r}       {g1}{b}nano claw code{r}",
+        "    ▄▄▄▄▄▀▀▀▀    nano claw code",
+        f"    {c1}▄▄▄▄▄{c3}▀▀▀▀{r}    {g1}{b}nano claw code{r}",
     ))
     rows.append((
-        "    ▄██████▄     ✦ Nano AI Coding Agent ✦",
-        f"    {c2}▄{c1}██████{c2}▄{r}     {g1}✦ Nano AI Coding Agent ✦{r}",
+        "    █████▀       ✦ Nano AI Coding Agent ✦",
+        f"    {c1}█████{c3}▀{r}       {g1}✦ Nano AI Coding Agent ✦{r}",
     ))
     rows.append((
-        f"   ▄█▀    ▀█▄    Provider     {provider}",
-        f"   {c2}▄{c1}█{c3}▀{r}    {c3}▀{c1}█{c2}▄{r}    {wh}Provider{r}     {provider_label}",
+        f"    ▀▀▀▀▀▄▄▄▄    Provider     {provider}",
+        f"    {c3}▀▀▀▀▀{c1}▄▄▄▄{r}    {wh}Provider{r}     {provider_label}",
     ))
     rows.append((
-        f"   █▀      ▀█    Model        {model}",
-        f"   {c1}█{c3}▀{r}      {c3}▀{c1}█{r}    {wh}Model{r}        {cy}{b}{model}{r}",
+        f"         █████   Model        {model}",
+        f"         {c1}█████{r}   {wh}Model{r}        {cy}{b}{model}{r}",
     ))
     rows.append((
         f"{g}Tools        {tools_plain}",
