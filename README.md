@@ -25,7 +25,7 @@ The result **matches** the full TypeScript agent on [SWE-bench Lite](https://www
 
 - [x] Distill Claude Code (42 → 13 tools, TypeScript pruning)
 - [x] Python re-implementation — nano-claw-code (~5,800 lines, 12 tools)
-- [x] SWE-bench evaluation harness with full trace logging
+- [x] SWE-bench evaluation harness with full trace logging (included in repo)
 - [x] Comparative evaluation on SWE-bench Lite (40/300 instances)
 - [ ] Full SWE-bench Lite run (300 instances)
 - [ ] SWE-bench Verified run (500 instances)
@@ -154,6 +154,14 @@ nano-claw-code/
 │   ├── frontmatter.py         #   CLAUDE.md frontmatter parsing (137 lines)
 │   ├── permissions.py         #   Permission handling (133 lines)
 │   └── memory.py              #   Memory management (111 lines)
+├── swebench_harness/          # SWE-bench evaluation harness
+│   ├── run_swebench_claude_code.py  # Main evaluation script (inference + evaluation)
+│   ├── run.sh                 #   One-command launcher (install, predict, evaluate)
+│   ├── compare_results.py     #   Cross-variant result comparison
+│   ├── requirements.txt       #   Harness dependencies (datasets, swebench)
+│   ├── instance_ids_pilot_8.txt   # 8-instance pilot subset
+│   ├── instance_ids_full_50.txt   # 50-instance subset
+│   └── results/               #   Predictions & evaluation reports
 ├── start.sh                   # Launch script
 ├── pyproject.toml             # Python package config
 └── assets/                    # Screenshots & images
@@ -228,6 +236,91 @@ For unified provider management, you can also use [LiteLLM Proxy](https://docs.l
 export ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
 export ANTHROPIC_API_KEY="sk-anything"
 export MODEL="moonshotai/kimi-k2"
+```
+
+---
+
+## SWE-bench Evaluation
+
+The repository includes a self-contained evaluation harness in `swebench_harness/` that handles both **inference** (generating patches) and **evaluation** (running SWE-bench grading).
+
+### Prerequisites
+
+```bash
+pip install -e .                          # Install nano-claw-code
+pip install -r swebench_harness/requirements.txt  # Install harness deps (datasets, swebench)
+```
+
+Docker must be running — SWE-bench uses Docker containers to execute and grade patches.
+
+### Quick Start (One Command)
+
+```bash
+cd swebench_harness
+./run.sh --max-instances 10
+```
+
+This will:
+1. Auto-install `nano-claw-code` if not already installed
+2. Generate predictions on SWE-bench Lite instances
+3. Run the SWE-bench evaluation harness and produce a JSON report
+
+### Step-by-Step
+
+**Step 1 — Generate predictions:**
+
+```bash
+cd swebench_harness
+
+# Run on first N instances
+python run_swebench_claude_code.py --max-instances 10
+
+# Run on a specific subset
+python run_swebench_claude_code.py --instance-ids instance_ids_pilot_8.txt
+
+# Resume from a specific instance
+python run_swebench_claude_code.py --resume-from django__django-11099
+```
+
+Predictions are saved to `results/nano-claw-code/predictions.jsonl` along with full traces (tool calls, model responses, thinking) in `results/nano-claw-code/traces/`.
+
+**Step 2 — Evaluate predictions:**
+
+```bash
+python run_swebench_claude_code.py --evaluate
+```
+
+This runs the official SWE-bench Docker evaluation and produces a JSON report (e.g., `claude-sonnet-4-20250514.nano-claw-code-swebench.json`).
+
+**Step 3 — View results:**
+
+```bash
+# Summary is printed to stdout; detailed report in the JSON file
+cat claude-sonnet-4-20250514.nano-claw-code-swebench.json | python -m json.tool
+```
+
+### Configuration
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--max-instances N` | Limit number of instances to evaluate | all |
+| `--instance-ids FILE` | Path to a file listing specific instance IDs | — |
+| `--model MODEL` | Model to use | `claude-sonnet-4-20250514` |
+| `--dataset DATASET` | SWE-bench dataset | `princeton-nlp/SWE-bench_Lite` |
+| `--split SPLIT` | Dataset split | `test` |
+| `--max-turns N` | Max agentic turns per instance | 30 |
+| `--resume-from ID` | Resume from a specific instance | — |
+| `--evaluate` | Run evaluation only (skip inference) | — |
+| `--predictions FILE` | Custom predictions file for evaluation | auto-detected |
+| `--bare` | Skip hooks/LSP for faster inference | — |
+| `-v, --verbose` | Enable debug logging | — |
+
+### Using with OpenRouter / LiteLLM
+
+```bash
+export OPENROUTER_API_KEY="sk-or-xxx"
+export OPENROUTER_MODEL="moonshotai/kimi-k2"
+cd swebench_harness && ./run.sh --max-instances 5
 ```
 
 ---

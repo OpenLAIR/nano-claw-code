@@ -1,0 +1,10 @@
+# SWE-bench Lite pilot subset: 8 tasks across 6 repos
+# Stratified random sample (seed=42)
+django__django-11630
+django__django-15213
+matplotlib__matplotlib-23563
+pytest-dev__pytest-5227
+scikit-learn__scikit-learn-13241
+sphinx-doc__sphinx-7686
+sympy__sympy-12171
+sympy__sympy-16792

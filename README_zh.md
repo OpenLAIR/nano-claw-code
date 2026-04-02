@@ -25,7 +25,7 @@ Nano-Claw-Code 是一个从完整版 [Claude Code](https://github.com/anthropics
 
 - [x] 从 Claude Code 蒸馏（42 → 13 工具，TypeScript 裁剪）
 - [x] Python 重写 — nano-claw-code（~5,800 行，12 工具）
-- [x] SWE-bench 评测框架（含完整 trace 日志）
+- [x] SWE-bench 评测框架（含完整 trace 日志，已包含在仓库中）
 - [x] SWE-bench Lite 对比评测（40/300 实例）
 - [ ] SWE-bench Lite 全量运行（300 实例）
 - [ ] SWE-bench Verified 运行（500 实例）
@@ -154,6 +154,14 @@ nano-claw-code/
 │   ├── frontmatter.py         #   CLAUDE.md 前置解析（137 行）
 │   ├── permissions.py         #   权限处理（133 行）
 │   └── memory.py              #   记忆管理（111 行）
+├── swebench_harness/          # SWE-bench 评测框架
+│   ├── run_swebench_claude_code.py  # 主评测脚本（推理 + 评测）
+│   ├── run.sh                 #   一键启动（安装、预测、评测）
+│   ├── compare_results.py     #   跨版本结果对比
+│   ├── requirements.txt       #   评测依赖（datasets、swebench）
+│   ├── instance_ids_pilot_8.txt   # 8 实例试点子集
+│   ├── instance_ids_full_50.txt   # 50 实例子集
+│   └── results/               #   预测结果 & 评测报告
 ├── start.sh                   # 启动脚本
 ├── pyproject.toml             # Python 包配置
 └── assets/                    # 截图 & 图片
@@ -228,6 +236,91 @@ export OPENROUTER_MODEL="moonshotai/kimi-k2"
 export ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
 export ANTHROPIC_API_KEY="sk-anything"
 export MODEL="moonshotai/kimi-k2"
+```
+
+---
+
+## SWE-bench 评测
+
+仓库内置了完整的评测框架 `swebench_harness/`，支持**推理**（生成补丁）和**评测**（运行 SWE-bench 评分）。
+
+### 前置条件
+
+```bash
+pip install -e .                          # 安装 nano-claw-code
+pip install -r swebench_harness/requirements.txt  # 安装评测依赖（datasets、swebench）
+```
+
+Docker 必须运行中 — SWE-bench 使用 Docker 容器执行和评分补丁。
+
+### 快速开始（一条命令）
+
+```bash
+cd swebench_harness
+./run.sh --max-instances 10
+```
+
+这条命令会：
+1. 自动安装 `nano-claw-code`（如尚未安装）
+2. 在 SWE-bench Lite 实例上生成预测
+3. 运行 SWE-bench 评测并生成 JSON 报告
+
+### 分步执行
+
+**第 1 步 — 生成预测：**
+
+```bash
+cd swebench_harness
+
+# 运行前 N 个实例
+python run_swebench_claude_code.py --max-instances 10
+
+# 运行指定子集
+python run_swebench_claude_code.py --instance-ids instance_ids_pilot_8.txt
+
+# 从指定实例恢复
+python run_swebench_claude_code.py --resume-from django__django-11099
+```
+
+预测结果保存在 `results/nano-claw-code/predictions.jsonl`，完整 trace（工具调用、模型回复、思考过程）保存在 `results/nano-claw-code/traces/`。
+
+**第 2 步 — 评测预测结果：**
+
+```bash
+python run_swebench_claude_code.py --evaluate
+```
+
+运行官方 SWE-bench Docker 评测，生成 JSON 报告（如 `claude-sonnet-4-20250514.nano-claw-code-swebench.json`）。
+
+**第 3 步 — 查看结果：**
+
+```bash
+# 摘要输出到终端；详细报告在 JSON 文件中
+cat claude-sonnet-4-20250514.nano-claw-code-swebench.json | python -m json.tool
+```
+
+### 配置参数
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `--max-instances N` | 限制评测实例数 | 全部 |
+| `--instance-ids FILE` | 指定实例 ID 列表文件 | — |
+| `--model MODEL` | 使用的模型 | `claude-sonnet-4-20250514` |
+| `--dataset DATASET` | SWE-bench 数据集 | `princeton-nlp/SWE-bench_Lite` |
+| `--split SPLIT` | 数据集切分 | `test` |
+| `--max-turns N` | 每个实例最大 Agent 轮次 | 30 |
+| `--resume-from ID` | 从指定实例恢复 | — |
+| `--evaluate` | 仅运行评测（跳过推理） | — |
+| `--predictions FILE` | 自定义预测文件（用于评测） | 自动检测 |
+| `--bare` | 跳过 hooks/LSP 加速推理 | — |
+| `-v, --verbose` | 启用调试日志 | — |
+
+### 使用 OpenRouter / LiteLLM
+
+```bash
+export OPENROUTER_API_KEY="sk-or-xxx"
+export OPENROUTER_MODEL="moonshotai/kimi-k2"
+cd swebench_harness && ./run.sh --max-instances 5
 ```
 
 ---
