@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Nano-Claw-Code</h1>
   <p align="center">
-    <em>A distilled coding agent in ~5,800 lines of Python — less code, same performance.</em>
+    <em>A distilled and optimized coding agent in ~5,800 lines of Python — less code, same performance.</em>
   </p>
   <p align="center">
     English | <a href="README_zh.md">中文</a>
