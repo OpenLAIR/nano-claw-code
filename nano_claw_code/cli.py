@@ -1129,9 +1129,10 @@ def _print_banner(provider: str, provider_label: str, model: str, perm_mode: str
                   state: AgentState | None = None,
                   session_title: str = "", skill_count: int = 0) -> None:
     """Print the startup banner with claw mascot."""
-    c1 = "\033[38;5;208m"  # warm orange (claw body)
-    c2 = "\033[38;5;172m"  # darker orange (claw shadow)
-    c3 = "\033[38;5;214m"  # gold highlight (claw tip)
+    c1 = "\033[38;5;220m"  # yellow (duck body)
+    c2 = "\033[38;5;178m"  # darker yellow (shadow)
+    c3 = "\033[38;5;208m"  # orange (beak)
+    ey = "\033[38;5;255m"  # white (eye)
     g1 = "\033[38;5;40m"   # bright green (title text)
     mg = "\033[38;5;176m"  # muted mauve
     wh = "\033[38;5;252m"  # warm white
@@ -1156,20 +1157,20 @@ def _print_banner(provider: str, provider_label: str, model: str, perm_mode: str
 
     rows.append(("", ""))
     rows.append((
-        "     ▄████▄      nano claw code",
-        f"     {c2}▄{c1}████{c2}▄{r}      {g1}{b}nano claw code{r}",
+        "      ▄██▄       nano claw code",
+        f"      {c2}▄{c1}██{c2}▄{r}       {g1}{b}nano claw code{r}",
     ))
     rows.append((
-        "    ██▀  ▀██     ✦ Nano AI Coding Agent ✦",
-        f"    {c1}██{c3}▀  ▀{c1}██{r}     {g1}✦ Nano AI Coding Agent ✦{r}",
+        "     █ ●█▀▀      ✦ Nano AI Coding Agent ✦",
+        f"     {c1}█ {ey}●{c1}█{c3}▀▀{r}      {g1}✦ Nano AI Coding Agent ✦{r}",
     ))
     rows.append((
-        f"    ██▄  ▄██     Provider     {provider}",
-        f"    {c1}██{c3}▄  ▄{c1}██{r}     {wh}Provider{r}     {provider_label}",
+        f"     ▀█████      Provider     {provider}",
+        f"     {c2}▀{c1}█████{r}      {wh}Provider{r}     {provider_label}",
     ))
     rows.append((
-        f"     ▀████▀      Model        {model}",
-        f"     {c2}▀{c1}████{c2}▀{r}      {wh}Model{r}        {cy}{b}{model}{r}",
+        f"      ▀██▀       Model        {model}",
+        f"      {c2}▀{c1}██{c2}▀{r}       {wh}Model{r}        {cy}{b}{model}{r}",
     ))
     rows.append((
         f"{g}Tools        {tools_plain}",
