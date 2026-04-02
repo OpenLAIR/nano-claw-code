@@ -5,6 +5,9 @@
     <em>A distilled and optimized coding agent in ~5,800 lines of Python — less code, same performance.</em>
   </p>
   <p align="center">
+    <a href="https://github.com/OpenLAIR/dr-claw/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0%20%2B%20AGPL--3.0-blue?style=for-the-badge" alt="License: GPL-3.0 + AGPL-3.0" /></a>
+  </p>
+  <p align="center">
     English | <a href="README_zh.md">中文</a>
   </p>
 </p>
@@ -420,5 +423,7 @@ cd swebench_harness && ./run.sh --max-instances 5
 ---
 
 ## License
+
+This project is licensed under **GPL-3.0 + AGPL-3.0**. See the [LICENSE](https://github.com/OpenLAIR/dr-claw/blob/main/LICENSE) for details.
 
 This project builds upon [Claude Code](https://github.com/anthropics/claude-code) by Anthropic.
