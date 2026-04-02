@@ -192,6 +192,25 @@ nano-claw-code/
 pip install -e .
 ```
 
+#### With uv
+
+[uv](https://docs.astral.sh/uv/) installs from `pyproject.toml` and the committed `uv.lock` for reproducible environments:
+
+```bash
+uv sync                    # runtime dependencies only
+uv sync --extra dev        # + pytest and ruff (for development)
+```
+
+This creates `.venv/` at the repo root (gitignored). Use `uv run nano-claw-code …`, `uv run pytest`, or activate `.venv` and run `./start.sh` as usual.
+
+Optional Rich-based terminal styling:
+
+```bash
+uv sync --extra dev --extra rich
+```
+
+If you change dependencies in `pyproject.toml`, run `uv lock` and commit the updated `uv.lock`.
+
 ### Step 2 — Configure API access
 
 ```bash

@@ -189,6 +189,25 @@ nano-claw-code/
 pip install -e .
 ```
 
+#### 用 uv 安装
+
+[uv](https://docs.astral.sh/uv/) 会根据 `pyproject.toml` 与仓库中的 `uv.lock` 安装依赖，环境可复现：
+
+```bash
+uv sync                    # 仅运行时依赖
+uv sync --extra dev        # 额外包含 pytest、ruff（开发）
+```
+
+会在项目根目录创建 `.venv/`（已加入 `.gitignore`）。可用 `uv run nano-claw-code …`、`uv run pytest`，或激活虚拟环境后照常使用 `./start.sh`。
+
+可选安装 Rich 终端样式：
+
+```bash
+uv sync --extra dev --extra rich
+```
+
+若修改了 `pyproject.toml` 里的依赖，请执行 `uv lock` 并将更新后的 `uv.lock` 一并提交。
+
 ### 第 2 步 — 配置 API
 
 ```bash
