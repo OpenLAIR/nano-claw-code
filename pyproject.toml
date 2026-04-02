@@ -31,6 +31,7 @@ target-version = "py310"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m \"not integration and not e2e\""
 markers = [
   "integration: calls real network or Anthropic API (set ANTHROPIC_API_KEY to run)",
   "e2e: full CLI subprocess workflows (also needs API key)",

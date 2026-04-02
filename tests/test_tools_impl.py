@@ -111,11 +111,19 @@ def test_todo_merge_and_clear(tmp_path: Path):
     assert get_todos() == []
 
 
-def test_html_to_text_strips_tags():
-    html = "<html><body><p>Hi</p><script>x</script></body></html>"
+def test_html_to_text_strips_script_and_style():
+    html = "<html><body><p>Hi</p><script>exfil</script></body></html>"
     t = _html_to_text(html)
     assert "Hi" in t
-    assert "script" not in t.lower() or "x" not in t  # script body stripped
+    assert "exfil" not in t
+    assert "<script" not in t.lower()
+    assert "</script>" not in t.lower()
+
+    styled = "<style>body{color:red}</style><p>visible</p>"
+    t2 = _html_to_text(styled)
+    assert "visible" in t2
+    assert "color:red" not in t2
+    assert "<style" not in t2.lower()
 
 
 def test_tool_dispatch_covers_all_defs():

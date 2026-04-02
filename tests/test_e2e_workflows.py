@@ -151,10 +151,12 @@ def test_e2e_skill_and_agent_project_files(tmp_path: Path):
     _skip_if_subprocess_quota(p, what="skill/agent e2e")
     assert p.returncode == 0, (p.stderr[-800:],)
     out = p.stdout
-    ok_skill = "SKILL_E2E_INLINE_OK" in out
-    ok_agent = "AGENT_E2E_BASH_MARKER" in out
-    assert ok_skill or ok_agent, (
-        "expected at least one e2e marker from Skill or Agent path; "
+    assert "SKILL_E2E_INLINE_OK" in out, (
+        "Skill inline path should emit marker; "
+        f"stdout tail: {out[-1200:]!r}"
+    )
+    assert "AGENT_E2E_BASH_MARKER" in out, (
+        "Agent custom + Bash path should emit marker; "
         f"stdout tail: {out[-1200:]!r}"
     )
 

@@ -300,9 +300,16 @@ nano-claw-code
 ### 开发
 
 ```bash
-pytest                              # 或：uv run pytest
-# 集成 / e2e 测试需要 API 密钥 — 见 pyproject.toml 中的 markers
+pytest                              # 默认仅单元测试（不发 API）
+# 须先清空 addopts，否则默认的 -m 过滤仍会生效：
+pytest --override-ini addopts= -m e2e
+pytest --override-ini addopts= -m integration
+pytest --override-ini addopts= -m "integration or e2e"
+# 一次性跑完全部用例：
+pytest --override-ini addopts=
 ```
+
+E2e / integration 需要 `ANTHROPIC_API_KEY`（`sk-ant-*`），仅 `test_e2e_cli_version`（测 `--version`）例外。若用 uv，可写 `uv run pytest …`。
 
 ---
 

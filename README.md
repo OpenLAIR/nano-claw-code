@@ -302,9 +302,16 @@ nano-claw-code
 ### Development
 
 ```bash
-pytest                              # or: uv run pytest
-# Integration / e2e tests need API keys — see markers in pyproject.toml
+pytest                              # unit tests only (default; no API calls)
+# Clear addopts first — otherwise the default -m filter still applies:
+pytest --override-ini addopts= -m e2e
+pytest --override-ini addopts= -m integration
+pytest --override-ini addopts= -m "integration or e2e"
+# Full suite in one go:
+pytest --override-ini addopts=
 ```
+
+E2e / integration need `ANTHROPIC_API_KEY` (`sk-ant-*`) except `test_e2e_cli_version` (`--version` only). Use `uv run pytest` if you use uv.
 
 ---
 

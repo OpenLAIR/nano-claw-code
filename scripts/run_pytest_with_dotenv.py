@@ -4,6 +4,9 @@
 Usage (from nano-claw-code/):
   python scripts/run_pytest_with_dotenv.py
   python scripts/run_pytest_with_dotenv.py tests/test_tools_impl.py -q
+
+Default pytest addopts skip integration/e2e (see pyproject.toml). To run them:
+  python scripts/run_pytest_with_dotenv.py --override-ini addopts= -m "integration or e2e"
 """
 from __future__ import annotations
 
