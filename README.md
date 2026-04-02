@@ -121,6 +121,9 @@ The full Claude Code agent defines **~56 tools** spanning shell execution, file 
 
 We rewrote the pruned agent in pure Python — **~5,800 lines** across 15 modules with **12 tools**:
 
+<details>
+<summary><b>12 tools retained</b> (click to expand tool mapping)</summary>
+
 | Tool | What It Does | Original Claude Code Equivalent |
 |------|-------------|--------------------------------|
 | `Read` | File reading with image/directory support | `FileReadTool` |
@@ -136,7 +139,12 @@ We rewrote the pruned agent in pure Python — **~5,800 lines** across 15 module
 | `Agent` | Sub-agent spawning with tool filtering | `AgentTool` |
 | `Skill` | Skill loading from `.claude/skills/` | `SkillTool` |
 
+</details>
+
 Beyond tools, the agent preserves key infrastructure:
+
+<details>
+<summary><b>9 infrastructure capabilities preserved</b> (click to expand)</summary>
 
 | Capability | Module | What It Does |
 |-----------|--------|-------------|
@@ -150,9 +158,14 @@ Beyond tools, the agent preserves key infrastructure:
 | API retry | `agent.py` | Exponential backoff with jitter on 429/5xx, respects `Retry-After` headers |
 | OpenAI compat | `openai_compat.py` | Alternative backend for non-Anthropic providers (Kimi, MiniMax, etc.) |
 
+</details>
+
 ### 3. Multi-Provider Model Support
 
 The original Claude Code is locked to Anthropic's API. Nano-Claw-Code adds first-class support for **any OpenAI-compatible endpoint**, enabling evaluation and deployment with third-party models:
+
+<details>
+<summary><b>4 provider tiers supported</b> (click to expand)</summary>
 
 | Provider | Env Vars | Examples |
 |----------|----------|----------|
@@ -160,6 +173,8 @@ The original Claude Code is locked to Anthropic's API. Nano-Claw-Code adds first
 | **OpenRouter** | `OPENROUTER_API_KEY` + `OPENROUTER_MODEL` | Any model on OpenRouter's catalog |
 | **OpenAI-compatible** | `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_API_KEY` | Azure AI, Kimi (Moonshot), MiniMax, DeepSeek, local vLLM/Ollama |
 | **LiteLLM Proxy** | `ANTHROPIC_BASE_URL` + `ANTHROPIC_API_KEY` | Unified gateway to 100+ providers |
+
+</details>
 
 The `openai_compat.py` module (~600 lines) translates the agent's Anthropic-native tool-use protocol into standard OpenAI Chat Completions format — handling tool schemas, streaming deltas, and multi-turn tool call/result pairs. Provider detection is automatic based on environment variables, requiring zero code changes to switch models.
 

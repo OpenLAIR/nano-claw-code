@@ -121,6 +121,9 @@ cp .env.example .env                # 可选；编辑密钥（或使用下方 ex
 
 将裁剪后的 Agent 重写为纯 Python — **~5,800 行**，15 个模块，**12 个工具**：
 
+<details>
+<summary><b>保留 12 个工具</b>（点击展开工具映射）</summary>
+
 | 工具 | 功能 | 原 Claude Code 对应工具 |
 |------|------|----------------------|
 | `Read` | 文件读取，支持图片/目录 | `FileReadTool` |
@@ -136,7 +139,12 @@ cp .env.example .env                # 可选；编辑密钥（或使用下方 ex
 | `Agent` | 子 Agent 生成 + 工具过滤 | `AgentTool` |
 | `Skill` | 从 `.claude/skills/` 加载技能 | `SkillTool` |
 
+</details>
+
 除工具外，Agent 还保留了完整版的关键基础设施：
+
+<details>
+<summary><b>保留 9 项基础设施能力</b>（点击展开）</summary>
 
 | 能力 | 模块 | 功能 |
 |------|------|------|
@@ -150,9 +158,14 @@ cp .env.example .env                # 可选；编辑密钥（或使用下方 ex
 | API 重试 | `agent.py` | 429/5xx 指数退避 + 抖动，支持 `Retry-After` 头 |
 | OpenAI 兼容 | `openai_compat.py` | 非 Anthropic 供应商的替代后端（Kimi、MiniMax 等） |
 
+</details>
+
 ### 3. 多供应商模型支持
 
 原始 Claude Code 仅支持 Anthropic API。Nano-Claw-Code 新增了对**任意 OpenAI 兼容端点**的原生支持，支持使用第三方模型进行评测和部署：
+
+<details>
+<summary><b>支持 4 类供应商</b>（点击展开）</summary>
 
 | 供应商 | 环境变量 | 示例 |
 |--------|----------|------|
@@ -160,6 +173,8 @@ cp .env.example .env                # 可选；编辑密钥（或使用下方 ex
 | **OpenRouter** | `OPENROUTER_API_KEY` + `OPENROUTER_MODEL` | OpenRouter 目录中的任意模型 |
 | **OpenAI 兼容** | `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_API_KEY` | Azure AI、Kimi（月之暗面）、MiniMax、DeepSeek、本地 vLLM/Ollama |
 | **LiteLLM Proxy** | `ANTHROPIC_BASE_URL` + `ANTHROPIC_API_KEY` | 统一网关，支持 100+ 供应商 |
+
+</details>
 
 `openai_compat.py` 模块（~600 行）将 Agent 的 Anthropic 原生工具调用协议转换为标准 OpenAI Chat Completions 格式 — 处理工具 schema、流式增量和多轮工具调用/结果对。供应商检测基于环境变量自动完成，切换模型无需修改代码。
 
