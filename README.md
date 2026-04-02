@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/nanoclaw.png" alt="Dr. Claw" width="128" height="128">
+  <img src="assets/nanoclaw.png" alt="Nano Claw Code" width="128" height="128">
   <h1 align="center">Nano-Claw-Code</h1>
   <p align="center">
     <em>A distilled and optimized coding agent in ~5,800 lines of Python — less code, same performance.</em>
@@ -11,7 +11,23 @@
 
 ---
 
-## What Is This?
+## Table of contents
+
+- [What is this?](#what-is-this)
+- [Quick start](#quick-start)
+- [Roadmap](#roadmap)
+- [Key results](#key-results)
+- [Contributions](#contributions)
+- [Distillation pipeline](#distillation-pipeline)
+- [Repository structure](#repository-structure)
+- [Setup](#setup)
+- [Usage](#usage)
+- [SWE-bench evaluation](#swe-bench-evaluation)
+- [License](#license)
+
+---
+
+## What is this?
 
 Nano-Claw-Code is a **lightweight Python coding agent** distilled from the full [Claude Code](https://github.com/anthropics/claude-code) framework. The distillation follows a two-stage pipeline:
 
@@ -20,13 +36,21 @@ Nano-Claw-Code is a **lightweight Python coding agent** distilled from the full 
 
 We provide code for result evaluation on [SWE-bench Lite](https://www.swebench.com/).
 
-
-
-
-
 <p align="center">
-  <img src="assets/screenshot.png" width="700" alt="Dr. Claw — Product Screenshot" />
+  <img src="assets/screenshot.png" width="700" alt="Nano-Claw-Code — CLI screenshot" />
 </p>
+
+---
+
+## Quick start
+
+```bash
+git clone https://github.com/OpenLAIR/nano-claw-code.git   # or your fork
+cd nano-claw-code
+pip install -e .                    # or: uv sync && source .venv/bin/activate
+cp .env.example .env                # optional; then edit keys (or use exports below)
+./start.sh                          # same as: nano-claw-code (after install)
+```
 
 ---
 
@@ -43,7 +67,7 @@ We provide code for result evaluation on [SWE-bench Lite](https://www.swebench.c
 
 ---
 
-## Key Results
+## Key results
 
 Evaluated on the first 50 instances of SWE-bench Lite using `claude-sonnet-4-20250514`:
 
@@ -145,7 +169,7 @@ Both variants are evaluated under identical conditions with full trace logging �
 
 ---
 
-## Distillation Pipeline
+## Distillation pipeline
 
 ```
 ┌─────────────────────┐      prune 29 tools     ┌─────────────────────┐        rewrite in       ┌─────────────────────┐
@@ -158,7 +182,9 @@ Both variants are evaluated under identical conditions with full trace logging �
 
 ---
 
-## Repository Structure
+## Repository structure
+
+Line counts below are approximate snapshots and may drift as the code evolves.
 
 ```
 nano-claw-code/
@@ -184,8 +210,10 @@ nano-claw-code/
 │   ├── instance_ids_pilot_8.txt   # 8-instance pilot subset
 │   ├── instance_ids_full_50.txt   # 50-instance subset
 │   └── results/               #   Predictions & evaluation reports
-├── start.sh                   # Launch script
+├── start.sh                   # Launch script (wraps the CLI)
 ├── pyproject.toml             # Python package config
+├── uv.lock                    # Locked deps (for uv)
+├── .env.example               # Example API / model env vars
 └── assets/                    # Screenshots & images
 ```
 
@@ -227,6 +255,8 @@ If you change dependencies in `pyproject.toml`, run `uv lock` and commit the upd
 
 ### Step 2 — Configure API access
 
+Either copy [`.env.example`](.env.example) to `.env` and edit (loaded automatically from the project tree), or export variables in your shell:
+
 ```bash
 # Option A: Direct Anthropic API
 export ANTHROPIC_API_KEY="sk-ant-xxx"
@@ -243,27 +273,33 @@ export MODEL="moonshotai/kimi-k2"
 
 ### Step 3 — Run
 
+[`start.sh`](start.sh) forwards to the same entry point as the **`nano-claw-code`** console script after install:
+
 ```bash
 ./start.sh
+# equivalent:
+nano-claw-code
+```
+
+### Development
+
+```bash
+pytest                              # or: uv run pytest
+# Integration / e2e tests need API keys — see markers in pyproject.toml
 ```
 
 ---
 
 ## Usage
 
-### Interactive Mode
-
-```bash
-./start.sh
-```
-
-### One-shot Prompt
+### One-shot prompt
 
 ```bash
 ./start.sh -p "Explain this codebase"
+# or: nano-claw-code -p "Explain this codebase"
 ```
 
-### Using Third-Party Models via OpenRouter
+### Third-party models (OpenRouter)
 
 ```bash
 export OPENROUTER_API_KEY="sk-or-xxx"
@@ -281,7 +317,7 @@ export MODEL="moonshotai/kimi-k2"
 
 ---
 
-## SWE-bench Evaluation
+## SWE-bench evaluation
 
 The repository includes a self-contained evaluation harness in `swebench_harness/` that handles both **inference** (generating patches) and **evaluation** (running SWE-bench grading).
 
@@ -289,7 +325,9 @@ The repository includes a self-contained evaluation harness in `swebench_harness
 
 ```bash
 pip install -e .                          # Install nano-claw-code
-pip install -r swebench_harness/requirements.txt  # Install harness deps (datasets, swebench)
+pip install -r swebench_harness/requirements.txt  # Harness deps (datasets, swebench)
+# or, with uv:
+# uv pip install -e . && uv pip install -r swebench_harness/requirements.txt
 ```
 
 Docker must be running — SWE-bench uses Docker containers to execute and grade patches.

@@ -1,5 +1,5 @@
 <p align="center">
-<img src="assets/nanoclaw.png" alt="Dr. Claw" width="128" height="128">
+  <img src="assets/nanoclaw.png" alt="Nano Claw Code" width="128" height="128">
   <h1 align="center">Nano-Claw-Code</h1>
   <p align="center">
     <em>蒸馏后的编程智能体 — 更少工具，同等性能，~5,800 行 Python。</em>
@@ -8,6 +8,22 @@
     <a href="README.md">English</a> | 中文
   </p>
 </p>
+
+---
+
+## 目录
+
+- [这是什么？](#这是什么)
+- [快速开始](#快速开始)
+- [路线图](#路线图)
+- [主要结果](#主要结果)
+- [贡献](#贡献)
+- [蒸馏流程](#蒸馏流程)
+- [仓库结构](#仓库结构)
+- [安装](#安装)
+- [使用](#使用)
+- [SWE-bench 评测](#swe-bench-评测)
+- [许可](#许可)
 
 ---
 
@@ -21,9 +37,20 @@ Nano-Claw-Code 是一个从完整版 [Claude Code](https://github.com/anthropics
 最终结果在 [SWE-bench Lite](https://www.swebench.com/) 上**达到**完整版 TypeScript Agent 的表现。
 
 <p align="center">
-  <img src="assets/screenshot.png" width="700" alt="Dr. Claw — Product Screenshot" />
+  <img src="assets/screenshot.png" width="700" alt="Nano-Claw-Code — 终端截图" />
 </p>
 
+---
+
+## 快速开始
+
+```bash
+git clone https://github.com/OpenLAIR/nano-claw-code.git   # 或你的 fork
+cd nano-claw-code
+pip install -e .                    # 或：uv sync && source .venv/bin/activate
+cp .env.example .env                # 可选；编辑密钥（或使用下方 export）
+./start.sh                          # 与安装后的 nano-claw-code 等价
+```
 
 ---
 
@@ -181,8 +208,10 @@ nano-claw-code/
 │   ├── instance_ids_pilot_8.txt   # 8 实例试点子集
 │   ├── instance_ids_full_50.txt   # 50 实例子集
 │   └── results/               #   预测结果 & 评测报告
-├── start.sh                   # 启动脚本
+├── start.sh                   # 启动脚本（封装 CLI）
 ├── pyproject.toml             # Python 包配置
+├── uv.lock                    # 锁定依赖（供 uv 使用）
+├── .env.example               # API / 模型环境变量示例
 └── assets/                    # 截图 & 图片
 ```
 
@@ -224,6 +253,8 @@ uv sync --extra dev --extra rich
 
 ### 第 2 步 — 配置 API
 
+可将 [`.env.example`](.env.example) 复制为 `.env` 并编辑（会沿项目目录自动加载），或在 shell 中 `export`：
+
 ```bash
 # 方式 A：直接使用 Anthropic API
 export ANTHROPIC_API_KEY="sk-ant-xxx"
@@ -240,24 +271,30 @@ export MODEL="moonshotai/kimi-k2"
 
 ### 第 3 步 — 运行
 
+[`start.sh`](start.sh) 与安装后的控制台命令 **`nano-claw-code`** 指向同一入口：
+
 ```bash
 ./start.sh
+# 等价：
+nano-claw-code
+```
+
+### 开发
+
+```bash
+pytest                              # 或：uv run pytest
+# 集成 / e2e 测试需要 API 密钥 — 见 pyproject.toml 中的 markers
 ```
 
 ---
 
 ## 使用
 
-### 交互模式
-
-```bash
-./start.sh
-```
-
 ### 单次提问
 
 ```bash
 ./start.sh -p "解释这个代码库"
+# 或：nano-claw-code -p "解释这个代码库"
 ```
 
 ### 通过 OpenRouter 使用第三方模型
@@ -286,7 +323,9 @@ export MODEL="moonshotai/kimi-k2"
 
 ```bash
 pip install -e .                          # 安装 nano-claw-code
-pip install -r swebench_harness/requirements.txt  # 安装评测依赖（datasets、swebench）
+pip install -r swebench_harness/requirements.txt  # 评测依赖（datasets、swebench）
+# 使用 uv 时：
+# uv pip install -e . && uv pip install -r swebench_harness/requirements.txt
 ```
 
 Docker 必须运行中 — SWE-bench 使用 Docker 容器执行和评分补丁。
