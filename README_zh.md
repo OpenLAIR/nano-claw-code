@@ -31,7 +31,7 @@ Nano-Claw-Code 是一个从完整版 [Claude Code](https://github.com/anthropics
 - [x] 从 Claude Code 蒸馏（42 → 13 工具，TypeScript 裁剪）
 - [x] Python 重写 — nano-claw-code（~5,800 行，12 工具）
 - [x] SWE-bench 评测框架（含完整 trace 日志，已包含在仓库中）
-- [x] SWE-bench Lite 对比评测（40/300 实例）
+- [x] SWE-bench Lite 对比评测（50/300 实例）
 - [ ] SWE-bench Lite 全量运行（300 实例）
 - [ ] SWE-bench Verified 运行（500 实例）
 - [ ] 通过 OpenRouter 评测第三方模型（Kimi、MiniMax）
@@ -41,14 +41,14 @@ Nano-Claw-Code 是一个从完整版 [Claude Code](https://github.com/anthropics
 
 ## 主要结果
 
-在 SWE-bench Lite 前 40 个实例上评测，模型为 `claude-sonnet-4-20250514`：
+在 SWE-bench Lite 前 50 个实例上评测，模型为 `claude-sonnet-4-20250514`：
 
 | 版本 | 语言 | 工具数 | 核心代码行数 | 提交 | 解决 | 解决率 |
 |------|------|--------|------------|------|------|--------|
-| **Claude Code**（完整版） | TypeScript | 42 | ~405,500 | 38 | 22 | 57.9% |
-| **Nano-Claw-Code**（本仓库） | Python | 12 | **~5,800** | 38 | 22 | 57.9% |
+| **Claude Code**（完整版） | TypeScript | 42 | ~405,500 | 50 | 33 | 66.0% |
+| **Nano-Claw-Code**（本仓库） | Python | 12 | **~5,800** | 50 | 31 | 62.0% |
 
-> 代码量减少 ~70 倍，解决率完全一致。全量测试（300 实例）正在进行中。
+> 代码量减少 ~70 倍，解决率接近。全量测试（300 实例）正在进行中。
 
 ---
 

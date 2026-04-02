@@ -34,7 +34,7 @@ We provide code for result evaluation on [SWE-bench Lite](https://www.swebench.c
 - [x] Distill Claude Code (42 → 13 tools, TypeScript pruning)
 - [x] Python re-implementation — nano-claw-code (~5,800 lines, 12 tools)
 - [x] SWE-bench evaluation harness with full trace logging (included in repo)
-- [x] Comparative evaluation on SWE-bench Lite (40/300 instances)
+- [x] Comparative evaluation on SWE-bench Lite (50/300 instances)
 - [ ] Full SWE-bench Lite run (300 instances)
 - [ ] SWE-bench Verified run (500 instances)
 - [ ] Third-party model evaluation via OpenRouter (Kimi, MiniMax)
@@ -44,14 +44,14 @@ We provide code for result evaluation on [SWE-bench Lite](https://www.swebench.c
 
 ## Key Results
 
-Evaluated on the first 40 instances of SWE-bench Lite using `claude-sonnet-4-20250514`:
+Evaluated on the first 50 instances of SWE-bench Lite using `claude-sonnet-4-20250514`:
 
 | Variant | Language | Tools | Core Lines | Submitted | Resolved | Resolve Rate |
 |---------|----------|-------|------------|-----------|----------|--------------|
-| **Claude Code** (full) | TypeScript | 42 | ~405,500 | 38 | 22 | 57.9% |
-| **Nano-Claw-Code** (this repo) | Python | 12 | **~5,800** | 38 | 22 | 57.9% |
+| **Claude Code** (full) | TypeScript | 42 | ~405,500 | 50 | 33 | 66.0% |
+| **Nano-Claw-Code** (this repo) | Python | 12 | **~5,800** | 50 | 31 | 62.0% |
 
-> ~70x less code, identical resolve rate. Full benchmark runs (300 instances) are in progress.
+> ~70x less code, comparable resolve rate. Full benchmark runs (300 instances) are in progress.
 
 ---
 
