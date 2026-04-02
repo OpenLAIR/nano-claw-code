@@ -230,6 +230,7 @@ nano-claw-code/
 ├── pyproject.toml             # Python 包配置
 ├── uv.lock                    # 锁定依赖（供 uv 使用）
 ├── .env.example               # API / 模型环境变量示例
+├── nano-claw.config.toml.example  # TOML 选项示例（[nano_claw]）
 └── assets/                    # 截图 & 图片
 ```
 
@@ -286,6 +287,15 @@ export ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
 export ANTHROPIC_API_KEY="sk-anything"
 export MODEL="moonshotai/kimi-k2"
 ```
+
+#### 可选 — TOML 配置（类似 Codex）
+
+不含密钥的选项（`model`、`max_tokens`、`permission_mode`、`verbose`、`thinking` 等）可写在 TOML 里：
+
+- **用户级：** `~/.nano_claw/config.toml`
+- **项目级：** `.nano_claw/config.toml`（自 git 根目录向当前工作目录合并，更深层目录覆盖外层）
+
+示例见 [`nano-claw.config.toml.example`](nano-claw.config.toml.example)，配置写在 `[nano_claw]` 段。**API 密钥仍只用 `.env`。** 优先级：环境变量里的 model 相关 → `config.json` → TOML → 内置默认。
 
 ### 第 3 步 — 运行
 

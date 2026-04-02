@@ -94,3 +94,95 @@ def test_resolve_model_openai_compat(monkeypatch):
         lambda **kw: {"provider": "openai_compat", "api_key": "x", "base_url": "https://x/v1"},
     )
     assert cfg.resolve_model() == "Kimi-K2.5"
+
+
+def test_parse_toml_options_nano_claw_section(tmp_path):
+    p = tmp_path / "c.toml"
+    p.write_text(
+        '[nano_claw]\nmodel = "m1"\nverbose = true\nunknown = 1\n',
+        encoding="utf-8",
+    )
+    d = cfg._parse_toml_options(p)
+    assert d["model"] == "m1"
+    assert d["verbose"] is True
+    assert "unknown" not in d
+
+
+def test_load_config_toml_project_overrides_user(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    monkeypatch.chdir(repo)
+    monkeypatch.setattr(cfg, "_git_toplevel", lambda: repo.resolve())
+    user = tmp_path / "homecfg"
+    user.mkdir()
+    (user / "config.toml").write_text('[nano_claw]\nmodel = "user-m"\n', encoding="utf-8")
+    (repo / ".nano_claw").mkdir(parents=True)
+    (repo / ".nano_claw" / "config.toml").write_text(
+        '[nano_claw]\nmodel = "proj-m"\npermission_mode = "manual"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cfg, "CONFIG_DIR", user)
+    monkeypatch.setattr(cfg, "SESSIONS_DIR", user / "sessions")
+    monkeypatch.setattr(cfg, "CONFIG_FILE", user / "nope.json")
+    monkeypatch.setattr(cfg, "load_dotenv", lambda: {})
+    monkeypatch.setattr(
+        cfg,
+        "resolve_api_env",
+        lambda **k: {"api_key": "", "provider": "none", "base_url": cfg.ANTHROPIC_DEFAULT_BASE_URL},
+    )
+    c = cfg.load_config()
+    assert c["model"] == "proj-m"
+    assert c["permission_mode"] == "manual"
+
+
+def test_load_config_env_model_skips_toml_model(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    monkeypatch.chdir(repo)
+    monkeypatch.setattr(cfg, "_git_toplevel", lambda: repo.resolve())
+    (repo / ".nano_claw").mkdir(parents=True)
+    (repo / ".nano_claw" / "config.toml").write_text(
+        '[nano_claw]\nmodel = "toml-m"\n',
+        encoding="utf-8",
+    )
+    nc = tmp_path / "nc"
+    nc.mkdir()
+    monkeypatch.setattr(cfg, "CONFIG_DIR", nc)
+    monkeypatch.setattr(cfg, "SESSIONS_DIR", nc / "sessions")
+    monkeypatch.setattr(cfg, "CONFIG_FILE", nc / "nope.json")
+    monkeypatch.setattr(cfg, "load_dotenv", lambda: {"MODEL": "env-m"})
+    monkeypatch.setattr(
+        cfg,
+        "resolve_api_env",
+        lambda **k: {"api_key": "", "provider": "none", "base_url": cfg.ANTHROPIC_DEFAULT_BASE_URL},
+    )
+    c = cfg.load_config()
+    assert c["model"] == "env-m"
+
+
+def test_load_config_json_overrides_toml(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    monkeypatch.chdir(repo)
+    monkeypatch.setattr(cfg, "_git_toplevel", lambda: repo.resolve())
+    (repo / ".nano_claw").mkdir(parents=True)
+    (repo / ".nano_claw" / "config.toml").write_text(
+        '[nano_claw]\nmodel = "toml-m"\nmax_tokens = 111\n',
+        encoding="utf-8",
+    )
+    nc = tmp_path / "nc"
+    nc.mkdir()
+    cfg_file = nc / "config.json"
+    cfg_file.write_text('{"model": "json-m", "max_tokens": 222}', encoding="utf-8")
+    monkeypatch.setattr(cfg, "CONFIG_DIR", nc)
+    monkeypatch.setattr(cfg, "SESSIONS_DIR", nc / "sessions")
+    monkeypatch.setattr(cfg, "CONFIG_FILE", cfg_file)
+    monkeypatch.setattr(cfg, "load_dotenv", lambda: {})
+    monkeypatch.setattr(
+        cfg,
+        "resolve_api_env",
+        lambda **k: {"api_key": "", "provider": "none", "base_url": cfg.ANTHROPIC_DEFAULT_BASE_URL},
+    )
+    c = cfg.load_config()
+    assert c["model"] == "json-m"
+    assert c["max_tokens"] == 222

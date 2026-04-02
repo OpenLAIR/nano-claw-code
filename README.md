@@ -240,6 +240,7 @@ nano-claw-code/
 ├── pyproject.toml             # Python package config
 ├── uv.lock                    # Locked deps (for uv)
 ├── .env.example               # Example API / model env vars
+├── nano-claw.config.toml.example  # Example TOML options ([nano_claw])
 └── assets/                    # Screenshots & images
 ```
 
@@ -296,6 +297,15 @@ export ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
 export ANTHROPIC_API_KEY="sk-anything"
 export MODEL="moonshotai/kimi-k2"
 ```
+
+#### Optional — TOML settings (Codex-style)
+
+Non-secret options (`model`, `max_tokens`, `permission_mode`, `verbose`, `thinking`, …) can live in TOML:
+
+- **User:** `~/.nano_claw/config.toml`
+- **Project:** `.nano_claw/config.toml` (from git root toward cwd; inner directories win)
+
+See [`nano-claw.config.toml.example`](nano-claw.config.toml.example). Keys go under `[nano_claw]`. API keys stay in `.env` only. Precedence: env model vars → `config.json` → TOML → defaults.
 
 ### Step 3 — Run
 

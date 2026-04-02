@@ -1,10 +1,12 @@
 """Configuration management, cost tracking, multi-provider API resolution.
 
-Priority (highest → lowest):
-  1. Project-level .env file  (./env, ../.env, up to git root)
-  2. Shell environment variables
-  3. ~/.nano_claw/config.json
+Priority (highest → lowest) for non-secret options:
+  1. Shell / project .env (model env vars: MODEL, ANTHROPIC_MODEL, …) — if set, TOML ``model`` is ignored
+  2. ~/.nano_claw/config.json (slash-commands; overwrites TOML for keys present)
+  3. TOML: ~/.nano_claw/config.toml, then ``.nano_claw/config.toml`` from git root → cwd (later file wins)
   4. Built-in defaults
+
+API keys and base URLs still come only from .env / environment (never from TOML).
 
 Supported providers (auto-detected):
   - OpenAI-compatible (Azure AI, Kimi, etc.): OPENAI_COMPAT_BASE_URL + OPENAI_COMPAT_API_KEY
@@ -19,8 +21,14 @@ import json
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 CONFIG_DIR = Path.home() / ".nano_claw"
 SESSIONS_DIR = CONFIG_DIR / "sessions"
@@ -45,6 +53,19 @@ COST_PER_1K = {
 }
 
 PERMISSION_MODES = ["auto", "accept-all", "manual"]
+
+# Keys allowed in [nano_claw] or at file root (Codex-style flat keys also accepted at root).
+TOML_OPTION_KEYS = frozenset({
+    "model",
+    "max_tokens",
+    "permission_mode",
+    "verbose",
+    "thinking",
+    "thinking_budget",
+    "bare",
+})
+
+_MODEL_ENV_KEYS = ("MODEL", "ANTHROPIC_MODEL", "OPENROUTER_MODEL", "OPENAI_COMPAT_MODEL")
 
 
 # ── .env file loading ─────────────────────────────────────────────────────
@@ -83,22 +104,28 @@ def _parse_dotenv(path: Path) -> dict[str, str]:
     return result
 
 
+def _git_toplevel() -> Path | None:
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        if out.returncode == 0:
+            return Path(out.stdout.strip()).resolve()
+    except Exception:
+        pass
+    return None
+
+
 def _find_dotenv_files() -> list[Path]:
     """Walk from CWD up to git root (or filesystem root), collecting .env files.
 
     Returns list ordered from *most specific* (CWD) to *least specific* (root).
     """
     cwd = Path.cwd().resolve()
-    git_root = None
-    try:
-        out = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=3,
-        )
-        if out.returncode == 0:
-            git_root = Path(out.stdout.strip()).resolve()
-    except Exception:
-        pass
+    git_root = _git_toplevel()
 
     found: list[Path] = []
     p = cwd
@@ -126,6 +153,63 @@ def load_dotenv() -> dict[str, str]:
 def _env_get(key: str, dotenv: dict[str, str]) -> str:
     """Get a value: .env (highest priority) → shell env → empty string."""
     return dotenv.get(key) or os.environ.get(key) or ""
+
+
+def _dotenv_or_env_sets_model(dotenv: dict[str, str]) -> bool:
+    return any(bool((_env_get(k, dotenv) or "").strip()) for k in _MODEL_ENV_KEYS)
+
+
+def _parse_toml_options(path: Path) -> dict[str, Any]:
+    """Load a single TOML file; return flat options (only TOML_OPTION_KEYS)."""
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        return {}
+    try:
+        data = tomllib.loads(raw.decode("utf-8"))
+    except Exception:
+        return {}
+
+    if "nano_claw" in data and isinstance(data["nano_claw"], dict):
+        table = data["nano_claw"]
+    else:
+        table = {k: v for k, v in data.items() if not isinstance(v, dict)}
+
+    out: dict[str, Any] = {}
+    for k in TOML_OPTION_KEYS:
+        if k in table:
+            out[k] = table[k]
+    return out
+
+
+def _project_toml_chain_root_to_cwd() -> list[Path]:
+    """Paths to .nano_claw/config.toml from git root down to cwd (later overwrites earlier)."""
+    cwd = Path.cwd().resolve()
+    root = _git_toplevel() or cwd
+    found: list[Path] = []
+    p = cwd
+    while True:
+        t = p / ".nano_claw" / "config.toml"
+        if t.is_file():
+            found.append(t)
+        if p == root:
+            break
+        parent = p.parent
+        if parent == p:
+            break
+        p = parent
+    return list(reversed(found))
+
+
+def load_merged_toml_options() -> dict[str, Any]:
+    """Merge TOML options: user ~/.nano_claw/config.toml, then repo root → cwd."""
+    merged: dict[str, Any] = {}
+    user = CONFIG_DIR / "config.toml"
+    if user.is_file():
+        merged.update(_parse_toml_options(user))
+    for path in _project_toml_chain_root_to_cwd():
+        merged.update(_parse_toml_options(path))
+    return merged
 
 
 # ── Provider resolution ───────────────────────────────────────────────────
@@ -246,6 +330,30 @@ def load_config() -> dict[str, Any]:
         "api_key": api_env["api_key"],
         "provider": api_env["provider"],
     }
+
+    toml_opts = load_merged_toml_options()
+    if not _dotenv_or_env_sets_model(dotenv) and "model" in toml_opts:
+        config["model"] = str(toml_opts["model"])
+    if "max_tokens" in toml_opts:
+        try:
+            config["max_tokens"] = int(toml_opts["max_tokens"])
+        except (TypeError, ValueError):
+            pass
+    if "permission_mode" in toml_opts:
+        pm = str(toml_opts["permission_mode"])
+        if pm in PERMISSION_MODES:
+            config["permission_mode"] = pm
+    if "verbose" in toml_opts:
+        config["verbose"] = bool(toml_opts["verbose"])
+    if "thinking" in toml_opts:
+        config["thinking"] = bool(toml_opts["thinking"])
+    if "thinking_budget" in toml_opts:
+        try:
+            config["thinking_budget"] = int(toml_opts["thinking_budget"])
+        except (TypeError, ValueError):
+            pass
+    if "bare" in toml_opts:
+        config["bare"] = bool(toml_opts["bare"])
 
     if CONFIG_FILE.exists():
         try:
