@@ -2,9 +2,15 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
 dist/
 build/
 *.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # SWE-bench harness outputs
 swebench_harness/results/*/predictions.jsonl
