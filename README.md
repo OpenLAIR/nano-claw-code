@@ -1,6 +1,6 @@
 <p align="center">
   <img src="assets/nanoclaw.png" alt="Nano Claw Code" width="128" height="128">
-  <h1 align="center">Nano-Claw-Code</h1>
+  <h1 align="center">Nano-Claude-Code</h1>
   <p align="center">
     <em>A distilled and optimized coding agent in ~5,800 lines of Python — less code, same performance.</em>
   </p>
